@@ -41,10 +41,24 @@ function Room({ room, socket, currentUser }) {
   };
 
   // Listen for video URL changes from other users
-  useEffect(() => {
+  // useEffect(() => {
+  //   socket.on('video-url-changed', (newVideoId) => {
+  //     setVideoId(newVideoId);
+  //   });
+
+
+
+    useEffect(() => {
+    // Load video if room already has one when component mounts
+    if (room.videoUrl) {
+      setVideoId(room.videoUrl);
+    }
+
     socket.on('video-url-changed', (newVideoId) => {
       setVideoId(newVideoId);
     });
+    
+  // ... rest of your socket listeners
 
     socket.on('video-play', (currentTime) => {
       if (playerRef.current) {
@@ -226,10 +240,10 @@ function Room({ room, socket, currentUser }) {
                   className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl hover:shadow-md transition-all border border-purple-100"
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md">
-                    {user.username[0].toUpperCase()}
+                    {user.username?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate">{user.username}</p>
+                    <p className="font-semibold text-gray-800 truncate">{user.username || 'Unknown'}</p>
                     <p className="text-xs text-gray-500">
                       {user.isAdmin ? '👑 Admin' : 'Viewer'}
                     </p>

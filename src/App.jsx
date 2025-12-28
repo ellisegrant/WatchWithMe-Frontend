@@ -14,35 +14,15 @@ function App() {
       console.log('✅ Connected to server!', socket.id);
     });
 
-    socket.on('disconnect', () => {
-      console.log('❌ Disconnected from server');
-    });
-
-    // socket.on('room-created', (room) => {
-    //   console.log('✅ Room created:', room);
-    //   setCurrentRoom(room);
-    // });
-
-    // socket.on('room-joined', (room) => {
-    //   console.log('✅ Joined room:', room);
-    //   setCurrentRoom(room);
-    // });
-
-
-
-    socket.on('room-created', ({ roomId, room }) => {
+    socket.on('room-created', (room) => {
       console.log('✅ Room created:', room);
       setCurrentRoom(room);
     });
 
-    socket.on('room-joined', ({ roomId, room }) => {
+    socket.on('room-joined', (room) => {
       console.log('✅ Joined room:', room);
       setCurrentRoom(room);
     });
-
-
-
-    
 
     socket.on('user-joined', (user) => {
       console.log('👋 User joined:', user);
@@ -67,7 +47,6 @@ function App() {
 
     return () => {
       socket.off('connect');
-      socket.off('disconnect');
       socket.off('room-created');
       socket.off('room-joined');
       socket.off('user-joined');
