@@ -40,6 +40,25 @@ function App() {
       }));
     });
 
+    socket.on('user-kicked', (user) => {
+      console.log('👢 User kicked:', user);
+      setCurrentRoom(prev => ({
+        ...prev,
+        users: prev.users.filter(u => u.id !== user.id)
+      }));
+    });
+
+    socket.on('room-updated', (updatedRoom) => {
+      console.log('🔄 Room updated:', updatedRoom);
+      setCurrentRoom(updatedRoom);
+    });
+
+    socket.on('kicked', ({ message }) => {
+      alert(message);
+      setCurrentRoom(null);
+      setCurrentUser('');
+    });
+
     socket.on('error', (message) => {
       console.error('❌ Error:', message);
       alert(message);
@@ -51,6 +70,9 @@ function App() {
       socket.off('room-joined');
       socket.off('user-joined');
       socket.off('user-left');
+      socket.off('user-kicked');
+      socket.off('room-updated');
+      socket.off('kicked');
       socket.off('error');
     };
   }, []);

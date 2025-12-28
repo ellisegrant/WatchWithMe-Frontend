@@ -18,8 +18,10 @@ function Room({ room, socket, currentUser }) {
   const [videoUrl, setVideoUrl] = useState('');
   const [videoId, setVideoId] = useState('');
   const [showUrlInput, setShowUrlInput] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const playerRef = useRef(null);
   const isAdmin = room.users.find(u => u.id === socket.id)?.isAdmin || false;
+  const isMuted = room.mutedUsers?.includes(socket.id) || false;
 
   // Extract video ID from YouTube URL
   const extractVideoId = (url) => {
@@ -40,15 +42,33 @@ function Room({ room, socket, currentUser }) {
     }
   };
 
+  // Admin actions
+  const handleKickUser = (userId) => {
+    if (window.confirm('Are you sure you want to kick this user?')) {
+      socket.emit('kick-user', { roomId: room.id, userId });
+    }
+  };
+
+  const handleToggleMute = (userId) => {
+    socket.emit('toggle-mute-user', { roomId: room.id, userId });
+  };
+
+  const handleToggleLock = () => {
+    socket.emit('toggle-lock-room', { roomId: room.id });
+  };
+
+  const handleTransferAdmin = (userId) => {
+    if (window.confirm('Are you sure you want to transfer admin rights to this user?')) {
+      socket.emit('transfer-admin', { roomId: room.id, newAdminId: userId });
+    }
+  };
+
+  const handleTogglePlaybackControl = () => {
+    socket.emit('toggle-playback-control', { roomId: room.id });
+  };
+
   // Listen for video URL changes from other users
-  // useEffect(() => {
-  //   socket.on('video-url-changed', (newVideoId) => {
-  //     setVideoId(newVideoId);
-  //   });
-
-
-
-    useEffect(() => {
+  useEffect(() => {
     // Load video if room already has one when component mounts
     if (room.videoUrl) {
       setVideoId(room.videoUrl);
@@ -57,8 +77,6 @@ function Room({ room, socket, currentUser }) {
     socket.on('video-url-changed', (newVideoId) => {
       setVideoId(newVideoId);
     });
-    
-  // ... rest of your socket listeners
 
     socket.on('video-play', (currentTime) => {
       if (playerRef.current) {
@@ -86,7 +104,7 @@ function Room({ room, socket, currentUser }) {
       socket.off('video-pause');
       socket.off('video-seek');
     };
-  }, [socket]);
+  }, [socket, room.videoUrl]);
 
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
@@ -122,6 +140,14 @@ function Room({ room, socket, currentUser }) {
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-sm font-semibold text-purple-700">Room: {room.id}</span>
             </div>
+            {room.isLocked && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-orange-100 rounded-lg">
+                <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span className="text-xs font-semibold text-orange-700">Locked</span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-4">
@@ -133,16 +159,81 @@ function Room({ room, socket, currentUser }) {
             </div>
             
             {isAdmin && (
-              <button
-                onClick={() => setShowUrlInput(!showUrlInput)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-500/30"
-              >
-                {showUrlInput ? 'Cancel' : '+ Load Video'}
-              </button>
+              <>
+                <button
+                  onClick={() => setShowUrlInput(!showUrlInput)}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-500/30"
+                >
+                  {showUrlInput ? 'Cancel' : '+ Load Video'}
+                </button>
+                <button
+                  onClick={() => setShowAdminPanel(!showAdminPanel)}
+                  className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Admin
+                </button>
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Admin Panel */}
+      {isAdmin && showAdminPanel && (
+        <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+          <div className="max-w-7xl mx-auto">
+            <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              Admin Controls
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Lock Room */}
+              <button
+                onClick={handleToggleLock}
+                className={`px-4 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
+                  room.isLocked 
+                    ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                {room.isLocked ? 'Unlock Room' : 'Lock Room'}
+              </button>
+
+              {/* Playback Control */}
+              <button
+                onClick={handleTogglePlaybackControl}
+                className={`px-4 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
+                  room.playbackControl === 'admin-only'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {room.playbackControl === 'admin-only' ? 'Admin Only Playback' : 'Everyone Can Control'}
+              </button>
+
+              {/* Info */}
+              <div className="px-4 py-3 bg-gray-700 rounded-lg flex items-center justify-center">
+                <span className="text-gray-300 text-sm">
+                  👑 You are the admin
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
@@ -171,6 +262,20 @@ function Room({ room, socket, currentUser }) {
                       Load
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Muted Warning */}
+            {isMuted && (
+              <div className="mb-4 bg-red-100 border border-red-300 rounded-xl p-4 flex items-center gap-3">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>
+                <div>
+                  <p className="font-semibold text-red-800">You have been muted</p>
+                  <p className="text-sm text-red-600">You cannot send messages in chat</p>
                 </div>
               </div>
             )}
@@ -211,6 +316,9 @@ function Room({ room, socket, currentUser }) {
                   <div>
                     <h2 className="text-xl font-bold text-gray-800 mb-2">Now Playing</h2>
                     <p className="text-gray-600 text-sm">Video synced across all viewers</p>
+                    {room.playbackControl === 'admin-only' && !isAdmin && (
+                      <p className="text-orange-600 text-xs mt-1">⚠️ Only admin can control playback</p>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <div className="px-3 py-1 bg-green-100 rounded-lg">
@@ -234,23 +342,64 @@ function Room({ room, socket, currentUser }) {
             </h3>
             
             <div className="space-y-2">
-              {room.users.map(user => (
-                <div
-                  key={user.id}
-                  className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl hover:shadow-md transition-all border border-purple-100"
-                >
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md">
-                    {user.username?.[0]?.toUpperCase() || '?'}
+              {room.users.map(user => {
+                const userIsMuted = room.mutedUsers?.includes(user.id);
+                return (
+                  <div
+                    key={user.id}
+                    className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 overflow-hidden"
+                  >
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md">
+                        {user.username?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 truncate flex items-center gap-2">
+                          {user.username || 'Unknown'}
+                          {userIsMuted && (
+                            <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                            </svg>
+                          )}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {user.isAdmin ? '👑 Admin' : 'Viewer'}
+                        </p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+
+                    {/* Admin Controls for each user */}
+                    {isAdmin && !user.isAdmin && (
+                      <div className="bg-gray-100 px-3 py-2 flex gap-2">
+                        <button
+                          onClick={() => handleToggleMute(user.id)}
+                          className={`flex-1 px-2 py-1 rounded text-xs font-semibold transition-all ${
+                            userIsMuted
+                              ? 'bg-green-600 hover:bg-green-700 text-white'
+                              : 'bg-orange-600 hover:bg-orange-700 text-white'
+                          }`}
+                        >
+                          {userIsMuted ? 'Unmute' : 'Mute'}
+                        </button>
+                        <button
+                          onClick={() => handleTransferAdmin(user.id)}
+                          className="flex-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold transition-all"
+                        >
+                          Make Admin
+                        </button>
+                        <button
+                          onClick={() => handleKickUser(user.id)}
+                          className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold transition-all"
+                        >
+                          Kick
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate">{user.username || 'Unknown'}</p>
-                    <p className="text-xs text-gray-500">
-                      {user.isAdmin ? '👑 Admin' : 'Viewer'}
-                    </p>
-                  </div>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -268,7 +417,15 @@ function Room({ room, socket, currentUser }) {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Status:</span>
-                <span className="font-semibold text-green-600">● Active</span>
+                <span className={`font-semibold ${room.isLocked ? 'text-orange-600' : 'text-green-600'}`}>
+                  {room.isLocked ? '🔒 Locked' : '● Active'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Playback:</span>
+                <span className="font-semibold text-gray-800 text-[10px]">
+                  {room.playbackControl === 'admin-only' ? '👑 Admin Only' : '👥 Everyone'}
+                </span>
               </div>
             </div>
           </div>
