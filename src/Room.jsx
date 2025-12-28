@@ -5,6 +5,7 @@ import Chat from './Chat';
 function Room({ room, socket, currentUser }) {
   const [videoUrl, setVideoUrl] = useState('');
   const [videoId, setVideoId] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
   const playerRef = useRef(null);
   const isAdmin = room.users.find(u => u.id === socket.id)?.isAdmin;
 
@@ -21,6 +22,7 @@ function Room({ room, socket, currentUser }) {
       setVideoId(id);
       socket.emit('video-url-change', { roomId: room.id, videoUrl: id });
       setVideoUrl('');
+      setShowUrlInput(false);
     } else {
       alert('Invalid YouTube URL');
     }
@@ -76,7 +78,7 @@ function Room({ room, socket, currentUser }) {
   };
 
   const opts = {
-    height: '500',
+    height: '100%',
     width: '100%',
     playerVars: {
       autoplay: 0,
@@ -84,81 +86,181 @@ function Room({ room, socket, currentUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-purple-50 flex flex-col">
       {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 px-6 py-4 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">🎬 WatchWithMe</h1>
-            <p className="text-sm text-gray-400">Room: {room.id}</p>
+          <div className="flex items-center gap-6">
+            <h1 className="text-2xl font-bold text-gray-800">WatchWithMe</h1>
+            <div className="flex items-center gap-3 px-4 py-2 bg-purple-100 rounded-lg">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-semibold text-purple-700">Room: {room.id}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400">{room.users.length} viewers</span>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span className="text-sm font-semibold text-gray-700">{room.users.length} Watching</span>
+            </div>
+            
+            {isAdmin && (
+              <button
+                onClick={() => setShowUrlInput(!showUrlInput)}
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-500/30"
+              >
+                {showUrlInput ? 'Cancel' : '+ Load Video'}
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Video Area */}
-          <div className="lg:col-span-3">
-            {isAdmin && (
-              <div className="mb-4 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Paste YouTube URL here..."
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
-                />
-                <button
-                  onClick={handleUrlSubmit}
-                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition"
-                >
-                  Load Video
-                </button>
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Video Area */}
+        <div className="flex-1 p-6 overflow-auto">
+          <div className="max-w-6xl mx-auto">
+            
+            {/* URL Input (Admin Only) */}
+            {isAdmin && showUrlInput && (
+              <div className="mb-6 animate-slideUp">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">Load YouTube Video</h3>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="Paste YouTube URL here..."
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                      className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-gray-800"
+                    />
+                    <button
+                      onClick={handleUrlSubmit}
+                      className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-semibold text-white transition-all"
+                    >
+                      Load
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Video container with chat overlay */}
-            <div className="relative bg-black rounded-lg overflow-hidden">
+            {/* Video Player */}
+            <div className="bg-black rounded-2xl overflow-hidden shadow-2xl mb-6 relative" style={{ aspectRatio: '16/9' }}>
               {videoId ? (
-                <YouTube
-                  videoId={videoId}
-                  opts={opts}
-                  onReady={onPlayerReady}
-                  onStateChange={onPlayerStateChange}
-                />
+                <>
+                  <YouTube
+                    videoId={videoId}
+                    opts={opts}
+                    onReady={onPlayerReady}
+                    onStateChange={onPlayerStateChange}
+                    className="w-full h-full"
+                  />
+                  
+                  {/* Chat Overlay */}
+                  <Chat socket={socket} roomId={room.id} username={currentUser} />
+                </>
               ) : (
-                <div className="aspect-video flex items-center justify-center bg-gray-800">
-                  <p className="text-gray-400">
-                    {isAdmin ? 'Enter a YouTube URL to start watching' : 'Waiting for admin to load a video...'}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+                  <svg className="w-20 h-20 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-gray-400 text-lg mb-2">
+                    {isAdmin ? 'Click "Load Video" to start watching' : 'Waiting for admin to load a video...'}
                   </p>
+                  <p className="text-gray-600 text-sm">The video will sync automatically for everyone</p>
                 </div>
               )}
-              
-              {/* Chat overlay - TikTok style */}
-              <Chat socket={socket} roomId={room.id} username={currentUser} />
+            </div>
+
+            {/* Video Info */}
+            {videoId && (
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">Now Playing</h2>
+                    <p className="text-gray-600 text-sm">Video synced across all viewers</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="px-3 py-1 bg-green-100 rounded-lg">
+                      <span className="text-green-700 text-xs font-semibold">● LIVE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar - User List */}
+        <div className="w-80 bg-white/80 backdrop-blur-sm border-l border-gray-200 p-6 overflow-auto">
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Viewers ({room.users.length})
+            </h3>
+            
+            <div className="space-y-2">
+              {room.users.map(user => (
+                <div
+                  key={user.id}
+                  className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl hover:shadow-md transition-all border border-purple-100"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md">
+                    {user.username[0].toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 truncate">{user.username}</p>
+                    <p className="text-xs text-gray-500">
+                      {user.isAdmin ? '👑 Admin' : 'Viewer'}
+                    </p>
+                  </div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Sidebar - Users List */}
-          <div className="lg:col-span-1">
-            <div className="bg-gray-800 rounded-lg p-4">
-              <h3 className="text-lg font-semibold mb-4">Viewers ({room.users.length})</h3>
-              <div className="space-y-2">
-                {room.users.map(user => (
-                  <div key={user.id} className="flex items-center gap-2 bg-gray-700 px-3 py-2 rounded-lg">
-                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center font-semibold">
-                      {user.username[0].toUpperCase()}
-                    </div>
-                    <span className="flex-1 truncate">{user.username}</span>
-                    {user.isAdmin && <span className="text-yellow-400">👑</span>}
-                  </div>
-                ))}
+          {/* Room Info */}
+          <div className="mt-6 p-4 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl border border-purple-200">
+            <h4 className="font-bold text-gray-800 mb-2 text-sm">Room Details</h4>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Room Code:</span>
+                <span className="font-mono font-bold text-purple-700">{room.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Your Role:</span>
+                <span className="font-semibold text-gray-800">{isAdmin ? 'Admin' : 'Viewer'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Status:</span>
+                <span className="font-semibold text-green-600">● Active</span>
               </div>
             </div>
+          </div>
+
+          {/* Share Room */}
+          <div className="mt-4">
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(room.id);
+                alert('Room code copied to clipboard!');
+              }}
+              className="w-full px-4 py-3 bg-white hover:bg-gray-50 border-2 border-purple-200 hover:border-purple-300 rounded-xl font-semibold text-purple-700 transition-all flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy Room Code
+            </button>
           </div>
         </div>
       </div>

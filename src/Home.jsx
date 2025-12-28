@@ -3,14 +3,27 @@ import { useState } from 'react';
 function Home({ onCreateRoom, onJoinRoom }) {
   const [username, setUsername] = useState('');
   const [roomId, setRoomId] = useState('');
-  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
-  const handleRoomIdChange = (e) => {
-    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (value.length <= 6) {
-      setRoomId(value);
-    }
-  };
+  // const handleRoomIdChange = (e) => {
+  //   const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  //   if (value.length <= 6) {
+  //     setRoomId(value);
+  //   }
+  // };
+
+
+
+
+    const handleRoomIdChange = (e) => {
+      const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (value.length <= 6) {
+        setRoomId(value);
+      }
+    };
+
+
+
 
   const handleCreateRoom = () => {
     if (username.trim()) {
@@ -18,193 +31,266 @@ function Home({ onCreateRoom, onJoinRoom }) {
     }
   };
 
-  const handleJoinRoom = () => {
-    if (username.trim() && roomId.length === 6) {
-      onJoinRoom(username.trim(), roomId);
+    const handleJoinRoom = () => {
+    const cleanRoomId = roomId.replace(/\s/g, ''); // Remove all spaces
+    if (username.trim() && cleanRoomId.length === 6) {
+      onJoinRoom(username.trim(), cleanRoomId);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background with Cinema Image */}
-      <div className="absolute inset-0">
-        {/* Main Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop)',
-          }}
-        ></div>
-        
-        {/* Dark overlay gradients for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/85 to-black"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/70"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-        
-        {/* Subtle animated glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-blue-600/5 rounded-full filter blur-3xl animate-pulse"></div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-purple-50 flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-white/80 backdrop-blur-sm border-r border-gray-200 p-6 flex flex-col">
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-800">WatchWithMe</h2>
+          <span className="text-xs text-purple-600 font-semibold">BETA</span>
+        </div>
+
+        <nav className="space-y-1 flex-1">
+          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-purple-100 text-purple-700 font-medium">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            Home
+          </a>
+          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+            </svg>
+            My Rooms
+          </a>
+          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Friends
+          </a>
+          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            History
+          </a>
+        </nav>
+
+        <div className="pt-6 border-t border-gray-200 space-y-2">
+          <a href="#" className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:text-gray-800 text-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </a>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
-        
-        {/* Logo & Hero Section */}
-        <div className="text-center mb-12 animate-fadeIn">
-          <div className="inline-block mb-8 relative">
-            <div className="absolute inset-0 bg-blue-600/20 blur-2xl"></div>
-            <h1 className="relative text-7xl md:text-9xl font-black text-white tracking-tighter">
-              WATCH<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">WITH</span>ME
-            </h1>
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        {/* Header */}
+        <div className="bg-white/50 backdrop-blur-sm border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+          <div className="flex-1 max-w-xl">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full px-4 py-2 pl-10 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+              />
+              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           </div>
-          
-          <p className="text-xl md:text-2xl text-gray-300 mb-4 font-light tracking-wide">
-            The Ultimate Watch Party Platform
-          </p>
-          <p className="text-sm text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            Host synchronized watch parties with friends. Real-time video sync, live chat, and seamless viewing experience.
-          </p>
+          <div className="flex items-center gap-4">
+            <button className="p-2 hover:bg-gray-100 rounded-lg relative">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </button>
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full"></div>
+          </div>
         </div>
 
-        {/* Main Card */}
-        <div className="w-full max-w-md mb-20 animate-slideUp">
-          <div className="relative">
-            {/* Glow effect behind card */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg blur opacity-25"></div>
-            
-            <div className="relative bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-2xl rounded-lg shadow-2xl border border-gray-800/50 p-10">
+        {/* Content Area */}
+        <div className="p-8">
+          {/* Hero Section - Create/Join Room */}
+          <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 rounded-3xl p-12 mb-8 relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800)', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
+            </div>
+            <div className="relative z-10 max-w-xl">
+              <div className="flex gap-2 mb-4">
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-semibold">Get Started</span>
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-semibold">Watch Together</span>
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4">Start Your Watch Party</h1>
+              <p className="text-white/90 text-lg mb-6">Create a room and invite your friends for synchronized viewing experience</p>
               
               {/* Username Input */}
-              <div className="mb-6">
-                <label className="block text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">
-                  Username
-                </label>
+              <div className="mb-4">
                 <input
                   type="text"
                   placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !showJoinInput && handleCreateRoom()}
-                  className="w-full px-5 py-4 bg-black/60 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 text-white placeholder-gray-600 transition-all text-lg"
+                  onKeyPress={(e) => e.key === 'Enter' && handleCreateRoom()}
+                  className="w-full px-5 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
                   maxLength={20}
                 />
               </div>
 
-              {/* Create Room Button */}
-              <button
-                onClick={handleCreateRoom}
-                disabled={!username.trim()}
-                className="w-full mb-6 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-lg font-bold text-white text-base shadow-xl shadow-blue-900/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-blue-600 disabled:hover:to-cyan-600 transform hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wide"
-              >
-                Create Watch Party
-              </button>
-
-              {/* Divider */}
-              <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-800"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-4 bg-gradient-to-b from-gray-900/95 to-black/95 text-gray-500 uppercase tracking-widest font-semibold">Or</span>
-                </div>
-              </div>
-
-              {/* Join Room Section */}
-              {!showJoinInput ? (
+              <div className="flex gap-3">
                 <button
-                  onClick={() => setShowJoinInput(true)}
+                  onClick={handleCreateRoom}
                   disabled={!username.trim()}
-                  className="w-full px-6 py-4 bg-transparent hover:bg-gray-800/30 border-2 border-gray-700 hover:border-gray-600 rounded-lg font-semibold text-gray-300 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wide text-sm"
+                  className="px-6 py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Join Existing Room
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Create Room
                 </button>
-              ) : (
-                <div className="space-y-5 animate-slideUp">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    Room Code
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="XXXXXX"
-                    value={roomId}
-                    onChange={handleRoomIdChange}
-                    onKeyPress={(e) => e.key === 'Enter' && roomId.length === 6 && handleJoinRoom()}
-                    className="w-full px-4 py-5 bg-black/60 border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 text-white placeholder-gray-700 text-center text-3xl font-bold tracking-[0.5em] transition-all"
-                    maxLength={6}
-                    autoFocus
-                  />
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={() => {
-                        setShowJoinInput(false);
-                        setRoomId('');
-                      }}
-                      className="flex-1 px-4 py-3 bg-transparent border-2 border-gray-700 hover:border-gray-600 rounded-lg font-semibold text-gray-400 hover:text-gray-300 transition-all uppercase tracking-wide text-sm"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleJoinRoom}
-                      disabled={roomId.length !== 6}
-                      className="flex-1 px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-lg font-bold text-white shadow-lg shadow-cyan-900/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide text-sm"
-                    >
-                      Join
-                    </button>
+                <button
+                  onClick={() => setShowJoinModal(true)}
+                  disabled={!username.trim()}
+                  className="px-6 py-3 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-bold hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Join Room
+                </button>
+              </div>
+            </div>
+
+            {/* Decorative avatars */}
+            <div className="absolute bottom-8 right-8 flex -space-x-3">
+              <div className="w-12 h-12 bg-white rounded-full border-4 border-pink-500 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400"></div>
+              </div>
+              <div className="w-12 h-12 bg-white rounded-full border-4 border-pink-500 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-cyan-400"></div>
+              </div>
+              <div className="w-12 h-12 bg-white rounded-full border-4 border-pink-500 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-400"></div>
+              </div>
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full border-4 border-white/30 flex items-center justify-center">
+                <span className="text-white text-sm font-bold">+12</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Trending Now Section */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Trending now</h2>
+              <span className="text-2xl">🔥</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { title: 'Action Movies', color: 'from-red-500 to-orange-500', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400' },
+                { title: 'Sci-Fi Classics', color: 'from-blue-500 to-cyan-500', img: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400' },
+                { title: 'Comedy Nights', color: 'from-pink-500 to-purple-500', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400' },
+              ].map((category, idx) => (
+                <div key={idx} className="relative rounded-2xl overflow-hidden group cursor-pointer h-48">
+                  <div className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110" style={{backgroundImage: `url(${category.img})`}}></div>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-60`}></div>
+                  <div className="relative h-full p-6 flex flex-col justify-between">
+                    <div className="flex justify-between items-start">
+                      <span className="px-3 py-1 bg-white/90 rounded-full text-xs font-bold text-gray-800">NEW</span>
+                      <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30">
+                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1">{category.title}</h3>
+                      <p className="text-white/80 text-sm">Popular · Trending</p>
+                    </div>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full px-4 mb-16">
-          <div className="group relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-            <div className="relative bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 rounded-lg p-8 text-center hover:border-gray-700 transition-all">
-              <div className="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+          {/* Features Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Why WatchWithMe?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Real-Time Sync</h3>
+                <p className="text-gray-600 text-sm">Perfect synchronization across all viewers</p>
               </div>
-              <h3 className="text-lg font-bold text-white mb-3 tracking-wide">REAL-TIME SYNC</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Perfect synchronization across all viewers with zero lag</p>
+              <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Live Chat</h3>
+                <p className="text-gray-600 text-sm">Chat overlay visible in fullscreen</p>
+              </div>
+              <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Private Rooms</h3>
+                <p className="text-gray-600 text-sm">Secure with unique access codes</p>
+              </div>
             </div>
           </div>
-          
-          <div className="group relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-lg blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-            <div className="relative bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 rounded-lg p-8 text-center hover:border-gray-700 transition-all">
-              <div className="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 border border-cyan-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-3 tracking-wide">LIVE CHAT</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Interactive chat overlay visible even in fullscreen</p>
-            </div>
-          </div>
-          
-          <div className="group relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-            <div className="relative bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 rounded-lg p-8 text-center hover:border-gray-700 transition-all">
-              <div className="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-3 tracking-wide">PRIVATE ROOMS</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Secure watch parties with unique access codes</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-gray-700 text-xs tracking-wider">
-          <p>© 2024 WATCHWITHME — ALL RIGHTS RESERVED</p>
         </div>
       </div>
+
+      {/* Join Room Modal */}
+      {showJoinModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-slideUp">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800">Join Room</h3>
+                <p className="text-gray-600 text-sm mt-1">Enter the 6-character room code</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowJoinModal(false);
+                  setRoomId('');
+                }}
+                className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="ABC123"
+              value={roomId}
+              onChange={handleRoomIdChange}
+              onKeyPress={(e) => e.key === 'Enter' && roomId.length === 6 && handleJoinRoom()}
+              className="w-full px-5 py-4 bg-gray-100 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 focus:bg-white text-center text-3xl font-bold tracking-[0.5em] mb-6 transition-all"
+              maxLength={6}
+              autoFocus
+            />
+
+            <button
+              onClick={handleJoinRoom}
+              disabled={roomId.length !== 6}
+              className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
+            >
+              Join Watch Party
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
