@@ -6,46 +6,46 @@ import Room from './Room';
 const socket = io('http://localhost:3001');
 
 function App() {
-  const [isConnected, setIsConnected] = useState(false);
   const [currentRoom, setCurrentRoom] = useState(null);
-  const [username, setUsername] = useState('');
+  const [currentUser, setCurrentUser] = useState('');
 
   useEffect(() => {
     socket.on('connect', () => {
-      console.log('Connected to server!');
-      setIsConnected(true);
+      console.log('✅ Connected to server!', socket.id);
     });
 
     socket.on('disconnect', () => {
-      console.log('Disconnected from server');
-      setIsConnected(false);
+      console.log('❌ Disconnected from server');
     });
 
-    socket.on('room-created', ({ roomId, room }) => {
-      console.log('Room created:', roomId);
+    socket.on('room-created', (room) => {
+      console.log('✅ Room created:', room);
       setCurrentRoom(room);
     });
 
-    socket.on('room-joined', ({ roomId, room }) => {
-      console.log('Joined room:', roomId);
+    socket.on('room-joined', (room) => {
+      console.log('✅ Joined room:', room);
       setCurrentRoom(room);
     });
 
     socket.on('user-joined', (user) => {
+      console.log('👋 User joined:', user);
       setCurrentRoom(prev => ({
         ...prev,
         users: [...prev.users, user]
       }));
     });
 
-    socket.on('user-left', (userId) => {
+    socket.on('user-left', (user) => {
+      console.log('👋 User left:', user);
       setCurrentRoom(prev => ({
         ...prev,
-        users: prev.users.filter(u => u.id !== userId)
+        users: prev.users.filter(u => u.id !== user.id)
       }));
     });
 
-    socket.on('error', ({ message }) => {
+    socket.on('error', (message) => {
+      console.error('❌ Error:', message);
       alert(message);
     });
 
@@ -61,23 +61,25 @@ function App() {
   }, []);
 
   const handleCreateRoom = (username) => {
-    setUsername(username);
-    socket.emit('create-room', username);
+    console.log('🎬 Creating room with username:', username);
+    setCurrentUser(username);
+    socket.emit('create-room', { username });
   };
 
-  const handleJoinRoom = (roomId, username) => {
-    setUsername(username);
+  const handleJoinRoom = (username, roomId) => {
+    console.log('🚪 Joining room:', roomId, 'with username:', username);
+    setCurrentUser(username);
     socket.emit('join-room', { roomId, username });
   };
 
   return (
-    <div className="min-h-screen">
+    <>
       {!currentRoom ? (
         <Home onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} />
       ) : (
-        <Room room={currentRoom} socket={socket} currentUser={username} />
+        <Room room={currentRoom} socket={socket} currentUser={currentUser} />
       )}
-    </div>
+    </>
   );
 }
 
