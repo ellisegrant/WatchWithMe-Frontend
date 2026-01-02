@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import Chat from './Chat';
+import YouTubeSearch from './components/YouTubeSearch';
 
 function Room({ room, socket, currentUser }) {
   // Safety check
@@ -19,6 +20,7 @@ function Room({ room, socket, currentUser }) {
   const [videoId, setVideoId] = useState('');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showYouTubeSearch, setShowYouTubeSearch] = useState(false);
   const playerRef = useRef(null);
   const isAdmin = room.users.find(u => u.id === socket.id)?.isAdmin || false;
   const isMuted = room.mutedUsers?.includes(socket.id) || false;
@@ -161,10 +163,25 @@ function Room({ room, socket, currentUser }) {
             {isAdmin && (
               <>
                 <button
-                  onClick={() => setShowUrlInput(!showUrlInput)}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-500/30"
+                  onClick={() => {
+                    setShowYouTubeSearch(true);
+                    setShowUrlInput(false);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
                 >
-                  {showUrlInput ? 'Cancel' : '+ Load Video'}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Search YouTube
+                </button>
+                <button
+                  onClick={() => {
+                    setShowUrlInput(!showUrlInput);
+                    setShowYouTubeSearch(false);
+                  }}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold text-sm transition-all"
+                >
+                  {showUrlInput ? 'Cancel' : 'Paste URL'}
                 </button>
                 <button
                   onClick={() => setShowAdminPanel(!showAdminPanel)}
@@ -302,7 +319,7 @@ function Room({ room, socket, currentUser }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <p className="text-gray-400 text-lg mb-2">
-                    {isAdmin ? 'Click "Load Video" to start watching' : 'Waiting for admin to load a video...'}
+                    {isAdmin ? 'Click "Search YouTube" or "Paste URL" to start watching' : 'Waiting for admin to load a video...'}
                   </p>
                   <p className="text-gray-600 text-sm">The video will sync automatically for everyone</p>
                 </div>
@@ -447,6 +464,22 @@ function Room({ room, socket, currentUser }) {
           </div>
         </div>
       </div>
+
+      {/* YouTube Search Modal */}
+      {showYouTubeSearch && (
+        <YouTubeSearch
+          socket={socket}
+          onSelectVideo={(url, title) => {
+            const id = extractVideoId(url);
+            if (id) {
+              setVideoId(id);
+              socket.emit('video-url-change', { roomId: room.id, videoUrl: id });
+            }
+            setShowYouTubeSearch(false);
+          }}
+          onClose={() => setShowYouTubeSearch(false)}
+        />
+      )}
     </div>
   );
 }
