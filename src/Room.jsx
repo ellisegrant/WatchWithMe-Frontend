@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import Chat from './Chat';
 import YouTubeSearch from './components/YouTubeSearch';
+import VideoQueue from './components/VideoQueue';
 
 function Room({ room, socket, currentUser }) {
   // Safety check
@@ -21,6 +22,7 @@ function Room({ room, socket, currentUser }) {
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showYouTubeSearch, setShowYouTubeSearch] = useState(false);
+  const [queue, setQueue] = useState([]);
   const playerRef = useRef(null);
   const isAdmin = room.users.find(u => u.id === socket.id)?.isAdmin || false;
   const isMuted = room.mutedUsers?.includes(socket.id) || false;
@@ -76,6 +78,11 @@ function Room({ room, socket, currentUser }) {
       setVideoId(room.videoUrl);
     }
 
+    // Load queue if room has one
+    if (room.queue) {
+      setQueue(room.queue);
+    }
+
     socket.on('video-url-changed', (newVideoId) => {
       setVideoId(newVideoId);
     });
@@ -100,13 +107,25 @@ function Room({ room, socket, currentUser }) {
       }
     });
 
+    socket.on('queue-updated', (updatedQueue) => {
+      console.log('Queue updated:', updatedQueue);
+      setQueue(updatedQueue);
+    });
+
+    socket.on('queue-finished', () => {
+      console.log('Queue finished');
+      alert('Queue finished! No more videos.');
+    });
+
     return () => {
       socket.off('video-url-changed');
       socket.off('video-play');
       socket.off('video-pause');
       socket.off('video-seek');
+      socket.off('queue-updated');
+      socket.off('queue-finished');
     };
-  }, [socket, room.videoUrl]);
+  }, [socket, room.videoUrl, room.queue]);
 
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
@@ -115,8 +134,12 @@ function Room({ room, socket, currentUser }) {
   const onPlayerStateChange = (event) => {
     const currentTime = event.target.getCurrentTime();
     
-    // 1 = playing, 2 = paused
-    if (event.data === 1) {
+    // 0 = ended, 1 = playing, 2 = paused
+    if (event.data === 0) {
+      // Video ended - trigger auto-play
+      console.log('Video ended, playing next...');
+      socket.emit('video-ended', { roomId: room.id });
+    } else if (event.data === 1) {
       socket.emit('play-video', { roomId: room.id, currentTime });
     } else if (event.data === 2) {
       socket.emit('pause-video', { roomId: room.id, currentTime });
@@ -183,6 +206,15 @@ function Room({ room, socket, currentUser }) {
                 >
                   {showUrlInput ? 'Cancel' : 'Paste URL'}
                 </button>
+                
+                {/* Video Queue Button */}
+                <VideoQueue 
+                  queue={queue} 
+                  socket={socket} 
+                  roomId={room.id} 
+                  isAdmin={isAdmin} 
+                />
+                
                 <button
                   onClick={() => setShowAdminPanel(!showAdminPanel)}
                   className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
@@ -244,7 +276,7 @@ function Room({ room, socket, currentUser }) {
               {/* Info */}
               <div className="px-4 py-3 bg-gray-700 rounded-lg flex items-center justify-center">
                 <span className="text-gray-300 text-sm">
-                  👑 You are the admin
+                  You are the admin
                 </span>
               </div>
             </div>
@@ -334,12 +366,12 @@ function Room({ room, socket, currentUser }) {
                     <h2 className="text-xl font-bold text-gray-800 mb-2">Now Playing</h2>
                     <p className="text-gray-600 text-sm">Video synced across all viewers</p>
                     {room.playbackControl === 'admin-only' && !isAdmin && (
-                      <p className="text-orange-600 text-xs mt-1">⚠️ Only admin can control playback</p>
+                      <p className="text-orange-600 text-xs mt-1">Only admin can control playback</p>
                     )}
                   </div>
                   <div className="flex gap-2">
                     <div className="px-3 py-1 bg-green-100 rounded-lg">
-                      <span className="text-green-700 text-xs font-semibold">● LIVE</span>
+                      <span className="text-green-700 text-xs font-semibold">LIVE</span>
                     </div>
                   </div>
                 </div>
@@ -381,7 +413,7 @@ function Room({ room, socket, currentUser }) {
                           )}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {user.isAdmin ? '👑 Admin' : 'Viewer'}
+                          {user.isAdmin ? 'Admin' : 'Viewer'}
                         </p>
                       </div>
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -435,13 +467,13 @@ function Room({ room, socket, currentUser }) {
               <div className="flex justify-between">
                 <span className="text-gray-600">Status:</span>
                 <span className={`font-semibold ${room.isLocked ? 'text-orange-600' : 'text-green-600'}`}>
-                  {room.isLocked ? '🔒 Locked' : '● Active'}
+                  {room.isLocked ? 'Locked' : 'Active'}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Playback:</span>
                 <span className="font-semibold text-gray-800 text-[10px]">
-                  {room.playbackControl === 'admin-only' ? '👑 Admin Only' : '👥 Everyone'}
+                  {room.playbackControl === 'admin-only' ? 'Admin Only' : 'Everyone'}
                 </span>
               </div>
             </div>
@@ -472,8 +504,20 @@ function Room({ room, socket, currentUser }) {
           onSelectVideo={(url, title) => {
             const id = extractVideoId(url);
             if (id) {
-              setVideoId(id);
-              socket.emit('video-url-change', { roomId: room.id, videoUrl: id });
+              const playNow = window.confirm(
+                `"${title}"\n\nClick OK to play now\nClick Cancel to add to queue`
+              );
+              
+              if (playNow) {
+                setVideoId(id);
+                socket.emit('video-url-change', { roomId: room.id, videoUrl: id });
+              } else {
+                socket.emit('add-to-queue', { 
+                  roomId: room.id, 
+                  videoUrl: id, 
+                  title: title 
+                });
+              }
             }
             setShowYouTubeSearch(false);
           }}
