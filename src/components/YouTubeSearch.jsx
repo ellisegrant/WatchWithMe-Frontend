@@ -7,7 +7,7 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
 
   useEffect(() => {
     socket.on('search-results', (videos) => {
-      console.log('✅ Search results received:', videos);
+      console.log('Search results received:', videos);
       setSearchResults(videos);
       setLoading(false);
     });
@@ -21,7 +21,7 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
     e.preventDefault();
     if (searchQuery.trim()) {
       setLoading(true);
-      console.log('🔍 Searching for:', searchQuery);
+      console.log('Searching for:', searchQuery);
       socket.emit('search-youtube', { query: searchQuery });
     }
   };
@@ -32,10 +32,10 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[80vh] overflow-hidden shadow-2xl animate-slideUp">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1A2332] rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden shadow-2xl animate-slideUp border border-[#2A3C52]">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex justify-between items-center">
+        <div className="bg-[#1E5B99] p-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -53,20 +53,20 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
         </div>
 
         {/* Search Bar */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-[#2A3C52]">
           <form onSubmit={handleSearch} className="flex gap-3">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for videos..."
-              className="flex-1 px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-gray-800"
+              className="flex-1 px-4 py-3 bg-[#0E1726] border border-[#2A3C52] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E5B99] focus:border-transparent text-white placeholder-[#5A6A7F]"
               autoFocus
             />
             <button
               type="submit"
               disabled={!searchQuery.trim() || loading}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3 bg-[#1E5B99] hover:bg-[#2672B8] text-white rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <>
@@ -86,20 +86,20 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
         </div>
 
         {/* Results */}
-        <div className="p-6 overflow-y-auto max-h-96">
+        <div className="p-6 overflow-y-auto max-h-96 bg-[#0E1726]">
           {searchResults.length === 0 && !loading && (
             <div className="text-center py-12">
-              <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-16 h-16 text-[#2A3C52] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <p className="text-gray-500">Search for videos to add to your watch party</p>
+              <p className="text-[#A1B0C8]">Search for videos to add to your watch party</p>
             </div>
           )}
 
           {loading && (
             <div className="text-center py-12">
-              <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Searching YouTube...</p>
+              <div className="w-12 h-12 border-4 border-[#1E5B99] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-[#A1B0C8]">Searching YouTube...</p>
             </div>
           )}
 
@@ -108,7 +108,7 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
               <div
                 key={video.id}
                 onClick={() => handleSelectVideo(video)}
-                className="flex gap-4 p-3 bg-gray-50 hover:bg-purple-50 rounded-xl cursor-pointer transition border border-transparent hover:border-purple-200 group"
+                className="flex gap-4 p-3 bg-[#1A2332] hover:bg-[#2A3C52] rounded-xl cursor-pointer transition border border-[#2A3C52] hover:border-[#1E5B99] group"
               >
                 {/* Thumbnail */}
                 <div className="relative flex-shrink-0">
@@ -117,7 +117,7 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
                     alt={video.title}
                     className="w-40 h-24 object-cover rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-lg transition flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 rounded-lg transition flex items-center justify-center">
                     <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                     </svg>
@@ -126,16 +126,16 @@ function YouTubeSearch({ socket, onSelectVideo, onClose }) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2 mb-1 group-hover:text-purple-700 transition">
+                  <h3 className="font-semibold text-white line-clamp-2 mb-1 group-hover:text-[#2672B8] transition">
                     {video.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-2">{video.channelTitle}</p>
-                  <p className="text-xs text-gray-500 line-clamp-2">{video.description}</p>
+                  <p className="text-sm text-[#A1B0C8] mb-2">{video.channelTitle}</p>
+                  <p className="text-xs text-[#5A6A7F] line-clamp-2">{video.description}</p>
                 </div>
 
                 {/* Select button */}
                 <div className="flex items-center">
-                  <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-sm transition opacity-0 group-hover:opacity-100">
+                  <button className="px-4 py-2 bg-[#1E5B99] hover:bg-[#2672B8] text-white rounded-lg font-semibold text-sm transition opacity-0 group-hover:opacity-100">
                     Select
                   </button>
                 </div>

@@ -8,10 +8,10 @@ function Room({ room, socket, currentUser }) {
   // Safety check
   if (!room || !room.users) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0E1726] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading room...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E5B99] mx-auto mb-4"></div>
+          <p className="text-[#A1B0C8]">Loading room...</p>
         </div>
       </div>
     );
@@ -155,32 +155,34 @@ function Room({ room, socket, currentUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-purple-50 flex flex-col">
+    <div className="min-h-screen bg-[#0E1726] flex flex-col">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 px-6 py-4 sticky top-0 z-20">
+      <div className="bg-[#131F2F] backdrop-blur-sm border-b border-[#1F2F44] px-6 py-4 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-gray-800">WatchWithMe</h1>
-            <div className="flex items-center gap-3 px-4 py-2 bg-purple-100 rounded-lg">
+            <h1 className="text-2xl font-bold text-white">
+              Watch<span className="text-[#1E5B99]">With</span>Me
+            </h1>
+            <div className="flex items-center gap-3 px-4 py-2 bg-[#1A2332] rounded-lg border border-[#2A3C52]">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-semibold text-purple-700">Room: {room.id}</span>
+              <span className="text-sm font-semibold text-white">Room: {room.id}</span>
             </div>
             {room.isLocked && (
-              <div className="flex items-center gap-2 px-3 py-1 bg-orange-100 rounded-lg">
-                <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 px-3 py-1 bg-orange-900/30 rounded-lg border border-orange-700">
+                <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <span className="text-xs font-semibold text-orange-700">Locked</span>
+                <span className="text-xs font-semibold text-orange-400">Locked</span>
               </div>
             )}
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 px-4 py-2 bg-[#1A2332] rounded-lg border border-[#2A3C52]">
+              <svg className="w-5 h-5 text-[#A1B0C8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
-              <span className="text-sm font-semibold text-gray-700">{room.users.length} Watching</span>
+              <span className="text-sm font-semibold text-white">{room.users.length} Watching</span>
             </div>
             
             {isAdmin && (
@@ -190,7 +192,7 @@ function Room({ room, socket, currentUser }) {
                     setShowYouTubeSearch(true);
                     setShowUrlInput(false);
                   }}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
+                  className="px-4 py-2 bg-[#1E5B99] hover:bg-[#2672B8] text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-[#1E5B99]/20 flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -202,7 +204,7 @@ function Room({ room, socket, currentUser }) {
                     setShowUrlInput(!showUrlInput);
                     setShowYouTubeSearch(false);
                   }}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold text-sm transition-all"
+                  className="px-4 py-2 bg-[#1A2332] hover:bg-[#2A3C52] text-white rounded-lg font-semibold text-sm transition-all border border-[#2A3C52]"
                 >
                   {showUrlInput ? 'Cancel' : 'Paste URL'}
                 </button>
@@ -217,7 +219,7 @@ function Room({ room, socket, currentUser }) {
                 
                 <button
                   onClick={() => setShowAdminPanel(!showAdminPanel)}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
+                  className="px-4 py-2 bg-[#1A2332] hover:bg-[#2A3C52] text-white rounded-lg font-semibold text-sm transition-all border border-[#2A3C52] flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -233,10 +235,10 @@ function Room({ room, socket, currentUser }) {
 
       {/* Admin Panel */}
       {isAdmin && showAdminPanel && (
-        <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+        <div className="bg-[#0B1220] border-b border-[#1F2F44] px-6 py-4">
           <div className="max-w-7xl mx-auto">
             <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-[#1E5B99]" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
               Admin Controls
@@ -248,7 +250,7 @@ function Room({ room, socket, currentUser }) {
                 className={`px-4 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
                   room.isLocked 
                     ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : 'bg-[#1A2332] hover:bg-[#2A3C52] text-white border border-[#2A3C52]'
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,8 +264,8 @@ function Room({ room, socket, currentUser }) {
                 onClick={handleTogglePlaybackControl}
                 className={`px-4 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
                   room.playbackControl === 'admin-only'
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    ? 'bg-[#1E5B99] hover:bg-[#2672B8] text-white'
+                    : 'bg-[#1A2332] hover:bg-[#2A3C52] text-white border border-[#2A3C52]'
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,8 +276,8 @@ function Room({ room, socket, currentUser }) {
               </button>
 
               {/* Info */}
-              <div className="px-4 py-3 bg-gray-700 rounded-lg flex items-center justify-center">
-                <span className="text-gray-300 text-sm">
+              <div className="px-4 py-3 bg-[#1A2332] rounded-lg flex items-center justify-center border border-[#2A3C52]">
+                <span className="text-[#A1B0C8] text-sm">
                   You are the admin
                 </span>
               </div>
@@ -287,14 +289,14 @@ function Room({ room, socket, currentUser }) {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Video Area */}
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 p-6 overflow-auto bg-[#0E1726]">
           <div className="max-w-6xl mx-auto">
             
             {/* URL Input (Admin Only) */}
             {isAdmin && showUrlInput && (
               <div className="mb-6 animate-slideUp">
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3">Load YouTube Video</h3>
+                <div className="bg-[#1A2332] rounded-2xl p-6 shadow-lg border border-[#2A3C52]">
+                  <h3 className="text-lg font-bold text-white mb-3">Load YouTube Video</h3>
                   <div className="flex gap-3">
                     <input
                       type="text"
@@ -302,11 +304,11 @@ function Room({ room, socket, currentUser }) {
                       value={videoUrl}
                       onChange={(e) => setVideoUrl(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
-                      className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-gray-800"
+                      className="flex-1 px-4 py-3 bg-[#0E1726] border border-[#2A3C52] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E5B99] focus:border-transparent text-white placeholder-[#5A6A7F]"
                     />
                     <button
                       onClick={handleUrlSubmit}
-                      className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-semibold text-white transition-all"
+                      className="px-6 py-3 bg-[#1E5B99] hover:bg-[#2672B8] rounded-xl font-semibold text-white transition-all"
                     >
                       Load
                     </button>
@@ -317,14 +319,14 @@ function Room({ room, socket, currentUser }) {
 
             {/* Muted Warning */}
             {isMuted && (
-              <div className="mb-4 bg-red-100 border border-red-300 rounded-xl p-4 flex items-center gap-3">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mb-4 bg-red-900/30 border border-red-700 rounded-xl p-4 flex items-center gap-3">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
                 </svg>
                 <div>
-                  <p className="font-semibold text-red-800">You have been muted</p>
-                  <p className="text-sm text-red-600">You cannot send messages in chat</p>
+                  <p className="font-semibold text-red-400">You have been muted</p>
+                  <p className="text-sm text-red-300">You cannot send messages in chat</p>
                 </div>
               </div>
             )}
@@ -345,33 +347,33 @@ function Room({ room, socket, currentUser }) {
                   <Chat socket={socket} roomId={room.id} username={currentUser} />
                 </>
               ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-                  <svg className="w-20 h-20 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0B1220] to-[#0E1726]">
+                  <svg className="w-20 h-20 text-[#2A3C52] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p className="text-gray-400 text-lg mb-2">
+                  <p className="text-[#A1B0C8] text-lg mb-2">
                     {isAdmin ? 'Click "Search YouTube" or "Paste URL" to start watching' : 'Waiting for admin to load a video...'}
                   </p>
-                  <p className="text-gray-600 text-sm">The video will sync automatically for everyone</p>
+                  <p className="text-[#5A6A7F] text-sm">The video will sync automatically for everyone</p>
                 </div>
               )}
             </div>
 
             {/* Video Info */}
             {videoId && (
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="bg-[#1A2332] rounded-2xl p-6 shadow-lg border border-[#2A3C52]">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800 mb-2">Now Playing</h2>
-                    <p className="text-gray-600 text-sm">Video synced across all viewers</p>
+                    <h2 className="text-xl font-bold text-white mb-2">Now Playing</h2>
+                    <p className="text-[#A1B0C8] text-sm">Video synced across all viewers</p>
                     {room.playbackControl === 'admin-only' && !isAdmin && (
-                      <p className="text-orange-600 text-xs mt-1">Only admin can control playback</p>
+                      <p className="text-orange-400 text-xs mt-1">Only admin can control playback</p>
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <div className="px-3 py-1 bg-green-100 rounded-lg">
-                      <span className="text-green-700 text-xs font-semibold">LIVE</span>
+                    <div className="px-3 py-1 bg-green-900/30 rounded-lg border border-green-700">
+                      <span className="text-green-400 text-xs font-semibold">LIVE</span>
                     </div>
                   </div>
                 </div>
@@ -381,10 +383,10 @@ function Room({ room, socket, currentUser }) {
         </div>
 
         {/* Sidebar - User List */}
-        <div className="w-80 bg-white/80 backdrop-blur-sm border-l border-gray-200 p-6 overflow-auto">
+        <div className="w-80 bg-[#131F2F] backdrop-blur-sm border-l border-[#1F2F44] p-6 overflow-auto">
           <div className="mb-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-[#1E5B99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               Viewers ({room.users.length})
@@ -396,14 +398,14 @@ function Room({ room, socket, currentUser }) {
                 return (
                   <div
                     key={user.id}
-                    className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 overflow-hidden"
+                    className="bg-[#1A2332] rounded-xl border border-[#2A3C52] overflow-hidden hover:border-[#1E5B99] transition-colors"
                   >
                     <div className="flex items-center gap-3 p-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md">
+                      <div className="w-10 h-10 bg-[#1E5B99] rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md">
                         {user.username?.[0]?.toUpperCase() || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-800 truncate flex items-center gap-2">
+                        <p className="font-semibold text-white truncate flex items-center gap-2">
                           {user.username || 'Unknown'}
                           {userIsMuted && (
                             <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,7 +414,7 @@ function Room({ room, socket, currentUser }) {
                             </svg>
                           )}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-[#A1B0C8]">
                           {user.isAdmin ? 'Admin' : 'Viewer'}
                         </p>
                       </div>
@@ -421,7 +423,7 @@ function Room({ room, socket, currentUser }) {
 
                     {/* Admin Controls for each user */}
                     {isAdmin && !user.isAdmin && (
-                      <div className="bg-gray-100 px-3 py-2 flex gap-2">
+                      <div className="bg-[#0E1726] px-3 py-2 flex gap-2">
                         <button
                           onClick={() => handleToggleMute(user.id)}
                           className={`flex-1 px-2 py-1 rounded text-xs font-semibold transition-all ${
@@ -434,7 +436,7 @@ function Room({ room, socket, currentUser }) {
                         </button>
                         <button
                           onClick={() => handleTransferAdmin(user.id)}
-                          className="flex-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold transition-all"
+                          className="flex-1 px-2 py-1 bg-[#1E5B99] hover:bg-[#2672B8] text-white rounded text-xs font-semibold transition-all"
                         >
                           Make Admin
                         </button>
@@ -453,26 +455,26 @@ function Room({ room, socket, currentUser }) {
           </div>
 
           {/* Room Info */}
-          <div className="mt-6 p-4 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl border border-purple-200">
-            <h4 className="font-bold text-gray-800 mb-2 text-sm">Room Details</h4>
+          <div className="mt-6 p-4 bg-[#1A2332] rounded-xl border border-[#2A3C52]">
+            <h4 className="font-bold text-white mb-2 text-sm">Room Details</h4>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-gray-600">Room Code:</span>
-                <span className="font-mono font-bold text-purple-700">{room.id}</span>
+                <span className="text-[#A1B0C8]">Room Code:</span>
+                <span className="font-mono font-bold text-[#1E5B99]">{room.id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Your Role:</span>
-                <span className="font-semibold text-gray-800">{isAdmin ? 'Admin' : 'Viewer'}</span>
+                <span className="text-[#A1B0C8]">Your Role:</span>
+                <span className="font-semibold text-white">{isAdmin ? 'Admin' : 'Viewer'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Status:</span>
-                <span className={`font-semibold ${room.isLocked ? 'text-orange-600' : 'text-green-600'}`}>
+                <span className="text-[#A1B0C8]">Status:</span>
+                <span className={`font-semibold ${room.isLocked ? 'text-orange-400' : 'text-green-400'}`}>
                   {room.isLocked ? 'Locked' : 'Active'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Playback:</span>
-                <span className="font-semibold text-gray-800 text-[10px]">
+                <span className="text-[#A1B0C8]">Playback:</span>
+                <span className="font-semibold text-white text-[10px]">
                   {room.playbackControl === 'admin-only' ? 'Admin Only' : 'Everyone'}
                 </span>
               </div>
@@ -486,7 +488,7 @@ function Room({ room, socket, currentUser }) {
                 navigator.clipboard.writeText(room.id);
                 alert('Room code copied to clipboard!');
               }}
-              className="w-full px-4 py-3 bg-white hover:bg-gray-50 border-2 border-purple-200 hover:border-purple-300 rounded-xl font-semibold text-purple-700 transition-all flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 bg-[#1A2332] hover:bg-[#2A3C52] border-2 border-[#2A3C52] hover:border-[#1E5B99] rounded-xl font-semibold text-[#1E5B99] transition-all flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
