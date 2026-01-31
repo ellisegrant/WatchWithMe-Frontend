@@ -3,7 +3,10 @@ import { io } from 'socket.io-client';
 import Home from './Home';
 import Room from './Room';
 
-const socket = io('http://localhost:3001');
+
+const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001', {
+  transports: ['websocket', 'polling']
+});
 
 function App() {
   const [currentRoom, setCurrentRoom] = useState(null);
@@ -11,21 +14,21 @@ function App() {
 
   useEffect(() => {
     socket.on('connect', () => {
-      console.log('✅ Connected to server!', socket.id);
+      console.log('Connected to server!', socket.id);
     });
 
     socket.on('room-created', (room) => {
-      console.log('✅ Room created:', room);
+      console.log(' Room created:', room);
       setCurrentRoom(room);
     });
 
     socket.on('room-joined', (room) => {
-      console.log('✅ Joined room:', room);
+      console.log('Joined room:', room);
       setCurrentRoom(room);
     });
 
     socket.on('user-joined', (user) => {
-      console.log('👋 User joined:', user);
+      console.log(' User joined:', user);
       setCurrentRoom(prev => ({
         ...prev,
         users: [...prev.users, user]
@@ -33,7 +36,7 @@ function App() {
     });
 
     socket.on('user-left', (user) => {
-      console.log('👋 User left:', user);
+      console.log(' User left:', user);
       setCurrentRoom(prev => ({
         ...prev,
         users: prev.users.filter(u => u.id !== user.id)
@@ -41,7 +44,7 @@ function App() {
     });
 
     socket.on('user-kicked', (user) => {
-      console.log('👢 User kicked:', user);
+      console.log(' User kicked:', user);
       setCurrentRoom(prev => ({
         ...prev,
         users: prev.users.filter(u => u.id !== user.id)
@@ -49,7 +52,7 @@ function App() {
     });
 
     socket.on('room-updated', (updatedRoom) => {
-      console.log('🔄 Room updated:', updatedRoom);
+      console.log(' Room updated:', updatedRoom);
       setCurrentRoom(updatedRoom);
     });
 
@@ -60,7 +63,7 @@ function App() {
     });
 
     socket.on('error', (message) => {
-      console.error('❌ Error:', message);
+      console.error(' Error:', message);
       alert(message);
     });
 
