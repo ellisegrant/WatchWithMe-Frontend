@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import Home from './Home';
-import Room from './components/Room';
+import Room from './Room';
 
 const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001', {
   transports: ['websocket', 'polling'],
