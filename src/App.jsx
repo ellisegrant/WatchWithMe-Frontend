@@ -85,12 +85,12 @@ function App() {
     setCurrentUser(username);
     socket.emit('create-room', { username });
   };
-
-  const handleJoinRoom = (username, roomId) => {
-    console.log('Joining room:', roomId, 'with username:', username);
-    setCurrentUser(username);
-    socket.emit('join-room', { roomId, username });
-  };
+  
+const handleJoinRoom = (roomId, username) => {
+  console.log('Joining room:', roomId, 'with username:', username);
+  setCurrentUser(username);
+  socket.emit('join-room', { roomId, username });
+};
 
   return (
     <>
