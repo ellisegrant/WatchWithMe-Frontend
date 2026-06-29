@@ -40,6 +40,24 @@ function App() {
                 avatar_url: profile.avatar_url,
                 token: session.access_token
               });
+            } else {
+              // Google user with no profile yet - create one
+              const username = session.user.user_metadata?.full_name?.replace(/\s+/g, '') || 
+                               session.user.email.split('@')[0];
+              supabase.from('profiles').insert({
+                id: session.user.id,
+                username,
+                email: session.user.email,
+                avatar_url: session.user.user_metadata?.avatar_url
+              }).then(() => {
+                setAuthUser({
+                  id: session.user.id,
+                  email: session.user.email,
+                  username,
+                  avatar_url: session.user.user_metadata?.avatar_url,
+                  token: session.access_token
+                });
+              });
             }
           });
       }
@@ -49,6 +67,41 @@ function App() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profile) {
+            setAuthUser({
+              id: session.user.id,
+              email: session.user.email,
+              username: profile.username,
+              avatar_url: profile.avatar_url,
+              token: session.access_token
+            });
+          } else {
+            // Google user - create profile
+            const username = session.user.user_metadata?.full_name?.replace(/\s+/g, '') ||
+                             session.user.email.split('@')[0];
+            await supabase.from('profiles').insert({
+              id: session.user.id,
+              username,
+              email: session.user.email,
+              avatar_url: session.user.user_metadata?.avatar_url
+            });
+            setAuthUser({
+              id: session.user.id,
+              email: session.user.email,
+              username,
+              avatar_url: session.user.user_metadata?.avatar_url,
+              token: session.access_token
+            });
+          }
+        }
+
         if (event === 'SIGNED_OUT') {
           setAuthUser(null);
           setCurrentRoom(null);
@@ -132,6 +185,10 @@ function App() {
     setAuthUser(user);
   };
 
+  const handleSkipAuth = () => {
+    setAuthUser({ guest: true, username: 'Guest' });
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setAuthUser(null);
@@ -167,7 +224,12 @@ function App() {
 
   // Show auth page if not logged in
   if (!authUser) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    return (
+      <AuthPage
+        onAuthSuccess={handleAuthSuccess}
+        onSkip={handleSkipAuth}
+      />
+    );
   }
 
   return (
