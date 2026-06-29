@@ -1,16 +1,64 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import supabase from './config/supabase';
 import Home from './Home';
 import Room from './Room';
+import AuthPage from './components/auth/AuthPage';
 
 const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001', {
   transports: ['websocket', 'polling'],
   withCredentials: true
 });
 
+// Ping backend every 10 minutes to keep it alive
+setInterval(() => {
+  fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/ping`)
+    .catch(() => {});
+}, 10 * 60 * 1000);
+
 function App() {
   const [currentRoom, setCurrentRoom] = useState(null);
   const [currentUser, setCurrentUser] = useState('');
+  const [authUser, setAuthUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile) {
+              setAuthUser({
+                id: session.user.id,
+                email: session.user.email,
+                username: profile.username,
+                avatar_url: profile.avatar_url,
+                token: session.access_token
+              });
+            }
+          });
+      }
+      setAuthLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          setAuthUser(null);
+          setCurrentRoom(null);
+          setCurrentUser('');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -80,31 +128,65 @@ function App() {
     };
   }, []);
 
-  const handleCreateRoom = (username) => {
-    console.log('Creating room with username:', username);
-    setCurrentUser(username);
-    socket.emit('create-room', { username });
+  const handleAuthSuccess = (user) => {
+    setAuthUser(user);
   };
-  
-const handleJoinRoom = (roomId, username) => {
-  console.log('Joining room:', roomId, 'with username:', username);
-  setCurrentUser(username);
-  socket.emit('join-room', { roomId, username });
-};
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setAuthUser(null);
+    setCurrentRoom(null);
+    setCurrentUser('');
+  };
+
+  const handleCreateRoom = (username) => {
+    const name = username || authUser?.username;
+    console.log('Creating room with username:', name);
+    setCurrentUser(name);
+    socket.emit('create-room', { username: name });
+  };
+
+  const handleJoinRoom = (roomId, username) => {
+    const name = username || authUser?.username;
+    console.log('Joining room:', roomId, 'with username:', name);
+    setCurrentUser(name);
+    socket.emit('join-room', { roomId, username: name });
+  };
+
+  // Show loading spinner while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#0E1726] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#1E5B99] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#A1B0C8]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not logged in
+  if (!authUser) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
 
   return (
     <>
       {!currentRoom ? (
-        <Home 
-          onCreateRoom={handleCreateRoom} 
+        <Home
+          onCreateRoom={handleCreateRoom}
           onJoinRoom={handleJoinRoom}
           socket={socket}
+          authUser={authUser}
+          onLogout={handleLogout}
         />
       ) : (
-        <Room 
-          room={currentRoom} 
-          socket={socket} 
-          currentUser={currentUser} 
+        <Room
+          room={currentRoom}
+          socket={socket}
+          currentUser={currentUser}
+          authUser={authUser}
+          onLogout={handleLogout}
         />
       )}
     </>
