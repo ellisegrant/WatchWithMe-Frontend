@@ -115,7 +115,7 @@ function Home({ onCreateRoom, onJoinRoom, socket }) {
     }
   };
 
-  const handleVideoClick = (videoId, title) => {
+  const handleVideoClick = () => {
     const name = prompt('Enter your name to start watching:');
     if (name && name.trim()) {
       onCreateRoom(name.trim());

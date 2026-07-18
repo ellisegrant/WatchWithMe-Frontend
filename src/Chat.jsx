@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 function Chat({ socket, roomId, username }) {
   const [messages, setMessages] = useState([]);
@@ -21,11 +21,11 @@ function Chat({ socket, roomId, username }) {
   const emojis = ['😀', '😂', '😍', '🥺', '😎', '🤔', '👍', '❤️', '🔥', '✨', '💯', '🎉'];
 
   // Play notification sound
-  const playSound = () => {
+  const playSound = useCallback(() => {
     if (soundEnabled && audioRef.current) {
       audioRef.current.play().catch(() => {});
     }
-  };
+  }, [soundEnabled]);
 
   // Messages
   useEffect(() => {
@@ -47,13 +47,13 @@ function Chat({ socket, roomId, username }) {
     return () => {
       socket.off('new-message');
     };
-  }, [socket, username, soundEnabled]);
+  }, [socket, username, playSound]);
 
   // Reactions
   useEffect(() => {
     socket.on('new-reaction', (reaction) => {
       console.log('New reaction:', reaction);
-      setReactions(prev => [...prev, reaction]);
+      setReactions(prev => [...prev, { ...reaction, left: Math.random() * 80 + 10 }]);
       
       // Auto-remove reaction after 3 seconds
       setTimeout(() => {
@@ -194,7 +194,7 @@ function Chat({ socket, roomId, username }) {
             key={reaction.id}
             className="absolute animate-float-up text-4xl drop-shadow-lg"
             style={{
-              left: `${Math.random() * 80 + 10}%`,
+              left: `${reaction.left}%`,
               bottom: '20%',
             }}
           >

@@ -5,27 +5,13 @@ import YouTubeSearch from './components/YouTubeSearch';
 import VideoQueue from './components/VideoQueue';
 
 function Room({ room, socket, currentUser }) {
-  // Safety check
-  if (!room || !room.users) {
-    return (
-      <div className="min-h-screen bg-[#0E1726] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E5B99] mx-auto mb-4"></div>
-          <p className="text-[#A1B0C8]">Loading room...</p>
-        </div>
-      </div>
-    );
-  }
-
   const [videoUrl, setVideoUrl] = useState('');
-  const [videoId, setVideoId] = useState('');
+  const [videoId, setVideoId] = useState(room?.videoUrl || '');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showYouTubeSearch, setShowYouTubeSearch] = useState(false);
-  const [queue, setQueue] = useState([]);
+  const [queue, setQueue] = useState(room?.queue || []);
   const playerRef = useRef(null);
-  const isAdmin = room.users.find(u => u.id === socket.id)?.isAdmin || false;
-  const isMuted = room.mutedUsers?.includes(socket.id) || false;
 
   // Extract video ID from YouTube URL
   const extractVideoId = (url) => {
@@ -73,15 +59,7 @@ function Room({ room, socket, currentUser }) {
 
   // Listen for video URL changes from other users
   useEffect(() => {
-    // Load video if room already has one when component mounts
-    if (room.videoUrl) {
-      setVideoId(room.videoUrl);
-    }
-
-    // Load queue if room has one
-    if (room.queue) {
-      setQueue(room.queue);
-    }
+    if (!room || !room.users) return;
 
     socket.on('video-url-changed', (newVideoId) => {
       setVideoId(newVideoId);
@@ -125,7 +103,7 @@ function Room({ room, socket, currentUser }) {
       socket.off('queue-updated');
       socket.off('queue-finished');
     };
-  }, [socket, room.videoUrl, room.queue]);
+  }, [socket, room]);
 
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
@@ -153,6 +131,21 @@ function Room({ room, socket, currentUser }) {
       autoplay: 0,
     },
   };
+
+  // Safety check (after all hooks, so hook order stays consistent across renders)
+  if (!room || !room.users) {
+    return (
+      <div className="min-h-screen bg-[#0E1726] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E5B99] mx-auto mb-4"></div>
+          <p className="text-[#A1B0C8]">Loading room...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isAdmin = room.users.find(u => u.id === socket.id)?.isAdmin || false;
+  const isMuted = room.mutedUsers?.includes(socket.id) || false;
 
   return (
     <div className="min-h-screen bg-[#0E1726] flex flex-col">
